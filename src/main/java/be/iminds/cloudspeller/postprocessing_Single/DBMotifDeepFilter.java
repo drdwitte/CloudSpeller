@@ -59,7 +59,6 @@ public class DBMotifDeepFilter extends Configured implements Tool {
             F = new int[FreqVec.getNumberOfIntervals()];
             p = new double[FreqVec.getNumberOfIntervals()];
 
-
             int cThr = context.getConfiguration().getInt("C",90);
             int blsThr = context.getConfiguration().getInt("BLS",15);
             int FThr = context.getConfiguration().getInt("F",10);
