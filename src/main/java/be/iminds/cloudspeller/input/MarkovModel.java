@@ -211,9 +211,7 @@ public class MarkovModel {
 
         MarkovModel model = new MarkovModel(1);
 
-
         model.feed("ACGTACGTACGTGGAAAAAAAAAAAAAAAAAAAAAAAAAAAATTCTGAGAGAGAGAGACGY");
-
 
         System.out.println(model);
 
@@ -226,7 +224,7 @@ public class MarkovModel {
         pr("done in "+(System.currentTimeMillis()-start));
 
 
-        //5s voor 10000 sequenties =>   
+        //5s voor 10000 sequenties =>
 
 
     }
