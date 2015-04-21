@@ -357,13 +357,7 @@ public class DatasetPreparator {
 		GeneFamily.setGeneralNewick(readNewickFile(dir+"speciesTree.txt"));
 
 
-
-
-
 		Set<GeneFamily> geneFamilies = createGeneFamilies(geneFams, allGeneSeqs);
-
-
-
 
 
 		System.out.println("Printing to file...");
