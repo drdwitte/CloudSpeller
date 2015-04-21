@@ -68,8 +68,7 @@ public class DBAddRanks extends Configured implements Tool {
 
             //output: motifPerm, (motif, F) => voor een gegeven BLS
 
-
-        }
+       }
 
 
 
