@@ -1,0 +1,26 @@
+
+
+eerste implementatie per duizend motieven
+=> 64 alle matches genereren
+
+Tabel
+
+dibox
+binding site
+gf
+speciesID
+
+
+
+
+
+hypergeometric distribution
+
+
+
+motief N: total & conserved
+motief specificiek: total en conserved
+=> hypergeometric distribution: population = aantal matches N motief, sample: aantal matches meer specifiek,
+moet kleiner zijn dan 1e-3
+
+
