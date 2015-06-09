@@ -182,22 +182,22 @@ public class DatasetPreparator {
 	
 	public static Map<Gene,String> readAllSequenceFiles(String dir) throws IOException{
 		//read different sequence files
-		String bdiFile="bdi_plaza2_5_2kbupstream.tfa";
+		String bdiFile="bdi_markov6.tfa";
 		Map<Gene,String> gS1=readGeneSequenceFile(dir+bdiFile,"BD");
 		System.out.println(bdiFile+" contains "+gS1.size()+" sequences");
 		genePrefixOrgMap.put("BD","BD");
 			
-		String sbiFile="sbi_plaza2_5_2kbupstream.tfa";
+		String sbiFile="sbi_markov6.tfa";
 		Map<Gene,String> gS2=readGeneSequenceFile(dir+sbiFile,"SB");
 		System.out.println(sbiFile+" contains "+gS2.size()+" sequences");
 		genePrefixOrgMap.put("SB","SB");	
 		
-		String osaFile="osa_plaza2_5_2kbupstream.tfa";
+		String osaFile="osa_markov6.tfa";
 		Map<Gene,String> gS3=readGeneSequenceFile(dir+osaFile,"OS");
 		System.out.println(osaFile+" contains "+gS3.size()+" sequences");
 		genePrefixOrgMap.put("OS","OS");	
 		
-		String zmaFile="zma_plaza2_5_2kbupstream.tfa";
+		String zmaFile="zma_markov6.tfa";
 		Map<Gene,String> gS4=readGeneSequenceFile(dir+zmaFile, "ZM");
 		System.out.println(zmaFile+" contains "+gS4.size()+" sequences");
 		genePrefixOrgMap.put("ZM","ZM");	
@@ -216,27 +216,27 @@ public class DatasetPreparator {
 
 	public static Map<Gene,String> readAllSequenceFilesRandomized(String dir) throws IOException{
 		//read different sequence files
-		String bdiFile="bdi_plaza2_5_2kbupstream.tfa";
+		String bdiFile="bdi_markov0.tfa";
 		Map<Gene,String> gS1=readGeneSequenceFile(dir+bdiFile,"BD");
 		System.out.println(bdiFile+" contains "+gS1.size()+" sequences");
 		gS1 = randomizeGSRelation(gS1);
 		genePrefixOrgMap.put("BD","BD");
 
-		String sbiFile="sbi_plaza2_5_2kbupstream.tfa";
+		String sbiFile="sbi_markov0.tfa";
 		Map<Gene,String> gS2=readGeneSequenceFile(dir+sbiFile,"SB");
 		System.out.println(sbiFile+" contains "+gS2.size()+" sequences");
 		gS2 = randomizeGSRelation(gS2);
 
 		genePrefixOrgMap.put("SB","SB");
 
-		String osaFile="osa_plaza2_5_2kbupstream.tfa";
+		String osaFile="osa_markov0.tfa";
 		Map<Gene,String> gS3=readGeneSequenceFile(dir+osaFile,"OS");
 		System.out.println(osaFile+" contains "+gS3.size()+" sequences");
 		gS3 = randomizeGSRelation(gS3);
 
 		genePrefixOrgMap.put("OS","OS");
 
-		String zmaFile="zma_plaza2_5_2kbupstream.tfa";
+		String zmaFile="zma_markov0.tfa";
 		Map<Gene,String> gS4=readGeneSequenceFile(dir+zmaFile, "ZM");
 		System.out.println(zmaFile+" contains "+gS4.size()+" sequences");
 		gS4 = randomizeGSRelation(gS4);
@@ -311,7 +311,7 @@ public class DatasetPreparator {
 
 
 	public static void generateRegularDataset() throws IOException{
-		String dir = "/home/ddewitte/Desktop/bioinformaticsPHD/OrigFormaatDataset/";
+		String dir = "/home/ddewitte/Desktop/bioinformaticsPHD/OrigFormaatDataset/RSAT_allFiles_step2/Markov6_allFiles/";
 		Map<Gene,String> allGeneSeqs = readAllSequenceFiles(dir);
 
 		Map<String,Set<Gene>> geneFams = readSelectionFile(dir+"iORTHO_2evid_osa.selection",genePrefixOrgMap);
@@ -335,7 +335,7 @@ public class DatasetPreparator {
 		//printGeneFamiliesToTheirOwnFile("MonocotFamilies2kb_all/", geneFamilies, 18000);
 
 		int numFamPerFile=10;
-		printGeneFamiliesInGroups(dir+"MonocotFamiliesAgg10PBL1em6/",geneFamilies,numFamPerFile);
+		printGeneFamiliesInGroups(dir+"MonocotFamiliesAgg10PBL1em6_Markov6/",geneFamilies,numFamPerFile);
 		System.out.println("Done! Bye!");
 
 
@@ -380,7 +380,7 @@ public class DatasetPreparator {
 	 * @param args
 	 */
 	public static void main(String[] args) throws IOException {
-		generateRandomizedGSRelationshipDataset();
+		generateRegularDataset(); //last used for Markov Random datasets
 	}
 
 
