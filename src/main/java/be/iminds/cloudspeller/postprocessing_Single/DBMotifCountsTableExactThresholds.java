@@ -3,6 +3,7 @@ package be.iminds.cloudspeller.postprocessing_Single;
 import be.iminds.cloudspeller.motifmodels.FreqVec;
 import be.iminds.cloudspeller.output.ConfidenceGraphRestrictions;
 import be.iminds.cloudspeller.output.SimultaneousOccurrenceConfidenceAndBLSFiltering;
+import be.iminds.cloudspeller.output.TripleThresholdFilterExactBLST;
 import be.iminds.cloudspeller.phylogenetics.BLS;
 import be.iminds.cloudspeller.toolbox.GeneralToolbox;
 import org.apache.hadoop.conf.Configuration;
@@ -23,12 +24,15 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ddewitte on 08.12.14.
  */
-public class DBMotifCountsTable extends Configured implements Tool {
+public class DBMotifCountsTableExactThresholds extends Configured implements Tool {
 
     private static String input;
     private static String output;
@@ -76,8 +80,7 @@ public class DBMotifCountsTable extends Configured implements Tool {
                 int c = cThr[(i/blsThr.length)%cThr.length]; //000111222000111222
                 int f = Fthr[i/(blsThr.length*cThr.length)]; //0000000001111111115555555 0000011115555
 
-                restrictions[i] = new SimultaneousOccurrenceConfidenceAndBLSFiltering
-                        (c, f, b);
+                restrictions[i] = new TripleThresholdFilterExactBLST(c, f, b);
 
                 strKeys[i] = "_"+b+"_"+c+"_"+f;
 
@@ -215,7 +218,7 @@ public class DBMotifCountsTable extends Configured implements Tool {
         //NOTE: Job takes a deep copy of conf so to modify conf use job.getConfiguration().doSomething();
         Job job = Job.getInstance(getConf(), "MotifCountsTable");
 
-        job.setJarByClass(DBMotifCountsTable.class);
+        job.setJarByClass(DBMotifCountsTableExactThresholds.class);
 
         //SETTING MAPREDUCE CLASSES
 
@@ -287,7 +290,7 @@ public class DBMotifCountsTable extends Configured implements Tool {
         int res = 0;
         try {
             res = ToolRunner
-                    .run(new Configuration(), new DBMotifCountsTable(), args);
+                    .run(new Configuration(), new DBMotifCountsTableExactThresholds(), args);
         } catch (Exception ex) {
             System.err.println("exception: " + ex.getMessage());
         }

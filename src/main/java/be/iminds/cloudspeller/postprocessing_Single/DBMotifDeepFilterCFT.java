@@ -7,7 +7,6 @@ import be.iminds.cloudspeller.phylogenetics.BLS;
 import be.iminds.cloudspeller.toolbox.GeneralToolbox;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -15,7 +14,6 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -24,23 +22,23 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ddewitte on 08.12.14.
  */
-public class DBMotifDeepFilter extends Configured implements Tool {
+public class DBMotifDeepFilterCFT extends Configured implements Tool {
 
     private static String input;
     private static String output;
 
-    public static class DeepFilterMapper extends Mapper<LongWritable,Text,NullWritable,Text> {
+    public static class DeepFilterMapperCFT extends Mapper<LongWritable,Text,NullWritable,Text> {
 
         private static final int [] t = {15,50,60,70,90,95};
 
 
         private static int motifLength = 12;
-        private static int degeneracy = 64;
 
         private static int [] F;
         private static double [] p;
@@ -62,8 +60,6 @@ public class DBMotifDeepFilter extends Configured implements Tool {
             int cThr = context.getConfiguration().getInt("C",90);
             int blsThr = context.getConfiguration().getInt("BLS",15);
             int FThr = context.getConfiguration().getInt("F",10);
-            motifLength = context.getConfiguration().getInt("k",12);
-            degeneracy = context.getConfiguration().getInt("s",64);
 
             restrictions = new SimultaneousOccurrenceConfidenceAndBLSFiltering
                     (cThr, FThr, blsThr );
@@ -79,18 +75,6 @@ public class DBMotifDeepFilter extends Configured implements Tool {
 
             if (strValue == null || strValue.length()==0)
                 return;
-
-
-            int k = getMotifLength(strValue);
-
-
-            if (k!=motifLength)
-                return;
-
-            int s = getMotifDegeneracy(strValue);
-            if (s!=degeneracy)
-                return;
-
 
 
             GeneralToolbox.parseConfidenceGraphValues(strValue,F,p);
@@ -109,17 +93,12 @@ public class DBMotifDeepFilter extends Configured implements Tool {
             System.err.println(s);
         }
 
-        private int getMotifLength(String confGraphRecord){
-
-            return confGraphRecord.indexOf('\t');
-
-        }
 
 
 
         private static final String baseChars = "ACGT";
 
-        private int getMotifDegeneracy(String confGraphRecord) {
+        /*private int getMotifDegeneracy(String confGraphRecord) {
 
             int twofolds = 0;
             int Ns = 0;
@@ -138,7 +117,7 @@ public class DBMotifDeepFilter extends Configured implements Tool {
 
             int deg = (1 << twofolds) * (1 << 2*Ns);
             return deg;
-        }
+        }*/
     }
 
 
@@ -151,9 +130,9 @@ public class DBMotifDeepFilter extends Configured implements Tool {
 
 
         //NOTE: Job takes a deep copy of conf so to modify conf use job.getConfiguration().doSomething();
-        Job job = Job.getInstance(getConf(), "DBMotifDeepFilter");
+        Job job = Job.getInstance(getConf(), "DBMotifDeepFilterCFT");
 
-        job.setJarByClass(DBMotifDeepFilter.class);
+        job.setJarByClass(DBMotifDeepFilterCFT.class);
 
         //SETTING MAPREDUCE CLASSES
 
@@ -166,14 +145,14 @@ public class DBMotifDeepFilter extends Configured implements Tool {
         job.setMapOutputValueClass(Text.class);
 
         // set hadoop methods (MAP ONLY)
-        job.setMapperClass(DeepFilterMapper.class);
+        job.setMapperClass(DeepFilterMapperCFT.class);
         job.setNumReduceTasks(0);
 
         processCommandLineArgs(args, job);
 
         // for multiple runs remove be.iminds.cloudspeller.output folder of previous run
-        FileSystem fs = FileSystem.get(job.getConfiguration());
-        fs.delete(new Path(output), true); // true stands for recursively deleting the folder you gave
+        //FileSystem fs = FileSystem.get(job.getConfiguration());
+        //fs.delete(new Path(output), true); // true stands for recursively deleting the folder you gave
 
         // setting IO
 
@@ -194,8 +173,6 @@ public class DBMotifDeepFilter extends Configured implements Tool {
         int confidenceCutoff=90;
         int familyCutoff=10;
         int minBLS=15;
-        int k = 12;
-        int s = 64;
 
 
         List<String> other_args = new ArrayList<String>();
@@ -208,10 +185,8 @@ public class DBMotifDeepFilter extends Configured implements Tool {
                     familyCutoff = Integer.parseInt(args[++i]);
                 } else if ("-BLS".equals(args[i])){
                     minBLS = Integer.parseInt(args[++i]);
-                } else if ("-k".equals(args[i])){
-                    k = Integer.parseInt(args[++i]);
-                } else if ("-s".equals(args[i])){
-                    s = Integer.parseInt(args[++i]);
+
+
 
                 } else {
                     other_args.add(args[i]);
@@ -227,14 +202,12 @@ public class DBMotifDeepFilter extends Configured implements Tool {
         job.getConfiguration().setInt("C",confidenceCutoff);
         job.getConfiguration().setInt("F",familyCutoff);
         job.getConfiguration().setInt("BLS",minBLS);
-        job.getConfiguration().setInt("k",k);
-        job.getConfiguration().setInt("s",s);
 
 
 
         if (other_args.size()!=2){
             System.out.println("ERROR: Wrong number of parameters: " + args.length);
-            System.out.println("Current parameter values: C="+confidenceCutoff+" F="+ familyCutoff+" BLS="+minBLS+" k="+k+" s="+s);
+            System.out.println("Current parameter values: C="+confidenceCutoff+" F="+ familyCutoff+" BLS="+minBLS);
             printUsage();
         }
 
@@ -244,7 +217,7 @@ public class DBMotifDeepFilter extends Configured implements Tool {
 
 
     private static int printUsage() {
-        System.out.println("bin/hadoop jar DeepFilter.jar -C 90 -F 10 -BLS 15 -k 12 -s 64 input/ output/");
+        System.out.println("bin/hadoop jar DeepFilterCFT.jar -C 90 -F 10 -BLS 15  input/ output/");
         return -1;
 
     }
@@ -254,7 +227,7 @@ public class DBMotifDeepFilter extends Configured implements Tool {
         int res = 0;
         try {
             res = ToolRunner
-                    .run(new Configuration(), new DBMotifDeepFilter(), args);
+                    .run(new Configuration(), new DBMotifDeepFilterCFT(), args);
         } catch (Exception ex) {
             System.err.println("exception: " + ex.getMessage());
         }
