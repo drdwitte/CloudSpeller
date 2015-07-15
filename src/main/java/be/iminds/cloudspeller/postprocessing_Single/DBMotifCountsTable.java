@@ -33,7 +33,7 @@ public class DBMotifCountsTable extends Configured implements Tool {
     private static String input;
     private static String output;
 
-    public static class MotifMapper extends Mapper<LongWritable,Text,Text,IntWritable> {
+    public static class MotifMapper extends Mapper<LongWritable,Text,Text,LongWritable> {
 
         private static final int [] t = {15,50,60,70,90,95};
 
@@ -51,7 +51,7 @@ public class DBMotifCountsTable extends Configured implements Tool {
         private static int numRestrictions;
         private static Map<String,Integer> countMap = new HashMap<String,Integer>();
         private static Text mapOutputKey = new Text("");
-        private static IntWritable mapOutputValue = new IntWritable(1);
+        private static LongWritable mapOutputValue = new LongWritable(1);
 
         private static ConfidenceGraphRestrictions [] restrictions;
 
@@ -177,18 +177,18 @@ public class DBMotifCountsTable extends Configured implements Tool {
     }
 ;
 
-    static class MotifReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
+    static class MotifReducer extends Reducer<Text,LongWritable,Text,LongWritable> {
 
 
-        private static IntWritable outputValue = new IntWritable();
+        private static LongWritable outputValue = new LongWritable();
 
         @Override
-        protected void reduce(Text key, Iterable<IntWritable> values,
+        protected void reduce(Text key, Iterable<LongWritable> values,
                               Context context)
                 throws IOException, InterruptedException {
 
             int sum = 0;
-            for (IntWritable i : values){
+            for (LongWritable i : values){
                 sum+=i.get();
             }
 
@@ -223,9 +223,12 @@ public class DBMotifCountsTable extends Configured implements Tool {
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(LongWritable.class);
+
         // (K3,V3)
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
+		job.setOutputValueClass(LongWritable.class);
 
         // set hadoop methods
         job.setMapperClass(MotifMapper.class);

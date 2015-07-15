@@ -37,7 +37,7 @@ public class DBMotifCountsTableExactThresholds extends Configured implements Too
     private static String input;
     private static String output;
 
-    public static class MotifMapper extends Mapper<LongWritable,Text,Text,IntWritable> {
+    public static class MotifMapper extends Mapper<LongWritable,Text,Text,LongWritable> {
 
         private static final int [] t = {15,50,60,70,90,95};
 
@@ -53,9 +53,9 @@ public class DBMotifCountsTableExactThresholds extends Configured implements Too
 
 
         private static int numRestrictions;
-        private static Map<String,Integer> countMap = new HashMap<String,Integer>();
+        private static Map<String,Long> countMap = new HashMap<String,Long>();
         private static Text mapOutputKey = new Text("");
-        private static IntWritable mapOutputValue = new IntWritable(1);
+        private static LongWritable mapOutputValue = new LongWritable(1);
 
         private static ConfidenceGraphRestrictions [] restrictions;
 
@@ -86,7 +86,7 @@ public class DBMotifCountsTableExactThresholds extends Configured implements Too
 
                 for (int k : motifLength) {
                     for (int d: degeneracies) {
-                        countMap.put(k + "_" + d + strKeys[i], 0);
+                        countMap.put(k + "_" + d + strKeys[i], 0L);
                     }
                 }
             }
@@ -142,7 +142,7 @@ public class DBMotifCountsTableExactThresholds extends Configured implements Too
         protected void cleanup(Context context) throws IOException, InterruptedException {
             //flush countmap
 
-            for (Map.Entry<String,Integer> e : countMap.entrySet()){
+            for (Map.Entry<String,Long> e : countMap.entrySet()){
 
 
                 mapOutputKey.set(e.getKey());
@@ -180,18 +180,18 @@ public class DBMotifCountsTableExactThresholds extends Configured implements Too
     }
 ;
 
-    static class MotifReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
+    static class MotifReducer extends Reducer<Text,LongWritable,Text,LongWritable> {
 
 
-        private static IntWritable outputValue = new IntWritable();
+        private static LongWritable outputValue = new LongWritable();
 
         @Override
-        protected void reduce(Text key, Iterable<IntWritable> values,
+        protected void reduce(Text key, Iterable<LongWritable> values,
                               Context context)
                 throws IOException, InterruptedException {
 
             int sum = 0;
-            for (IntWritable i : values){
+            for (LongWritable i : values){
                 sum+=i.get();
             }
 
@@ -226,9 +226,12 @@ public class DBMotifCountsTableExactThresholds extends Configured implements Too
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(LongWritable.class);
+
         // (K3,V3)
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
+		job.setOutputValueClass(LongWritable.class);
 
         // set hadoop methods
         job.setMapperClass(MotifMapper.class);
